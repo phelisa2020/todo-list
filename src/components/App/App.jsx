@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { v4 as createId } from "uuid";
 import { BrowserRouter, Switch, Route, useParams } from "react-router-dom";
+import identity from "netlify-identity-widget";
 
 import Home from "../../views/Home/Home";
 import Add from "../../views/Add/Add";
@@ -9,6 +10,11 @@ import Edit from "../../views/Edit/Edit";
 const EditWraper = (props) => {
   const { list, ...remainingProps } = props;
   const { taskId } = useParams();
+
+  if (list.length < 1) {
+    return <div>Loading...</div>;
+  }
+
   const { name } = list.find((item) => item.id === taskId);
   return <Edit {...remainingProps} taskId={taskId} initialName={name} />;
 };
@@ -23,20 +29,20 @@ const App = () => {
       setList(JSON.parse(listAsString));
     }
     setLoaded(true);
+
+    identity.init();
+    const userObj = identity.currentUser();
+
+    if (!userObj) {
+      identity.open();
+    }
   }, []);
 
-  useEffect(
-      () => {
-          if (loaded) {
-          window.localStorage.setItem(
-              "list",
-               JSON.stringify(list),
-               
-               )
-          }
-        },
-               [list, loaded],
-               );
+  useEffect(() => {
+    if (loaded) {
+      window.localStorage.setItem("list", JSON.stringify(list));
+    }
+  }, [list, loaded]);
 
   const handleAddItems = (name) => {
     setList([{ id: createId(), name, checked: false }, ...list]);
@@ -73,15 +79,27 @@ const App = () => {
     window.location.replace("/");
   };
 
+
   return (
     <BrowserRouter>
       <Switch>
         <Route path="/edit/:taskId">
-          <EditWraper list={list} onSave={handleEditItem} />
+          <EditWraper
+            list={list}
+            onSave={handleEditItem}
+            userName={null}
+            onLogin={console.log}
+            onUserClick={console.log}
+          />
         </Route>
 
         <Route path="/add">
-          <Add onSave={handleAddItems} />
+          <Add
+            onSave={handleAddItems}
+            userName={null}
+            onLogin={console.log}
+            onUserClick={console.log}
+          />
         </Route>
 
         <Route path="/">
@@ -89,6 +107,9 @@ const App = () => {
             list={list}
             onCheckToggle={handleCheckToggle}
             onDeleteItem={handleDeleteItem}
+            userName={null}
+            onLogin={console.log}
+            onUserClick={console.log}
           />
         </Route>
       </Switch>

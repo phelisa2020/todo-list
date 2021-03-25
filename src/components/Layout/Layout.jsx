@@ -1,12 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import Link from "../Link/Link";
+import { Button } from "@material-ui/core";
+import { AccountCircle } from "@material-ui/icons"
 
 const Header = styled.header`
   background: #023c40;
   color: white;
   text-align: center;
-  padding: 0.1rem;
+  padding: 0.1rem 1rem;
+  display: flex;
+  justify-content: space-between;
 `;
 const Title = styled.h1`
   font-family: Arial, sans-serif;
@@ -45,13 +49,20 @@ const PAGE_TITLE_MAP = {
 
 };
 
-const Home = (props) => {
-  const { children, activePage} = props;
+const StyledButton = styled(Button)`
+  && {
+    color: white;
+  }
+`
+
+const Layout = (props) => {
+  const { children, activePage, userName, onLogin, onUserClick} = props;
 
   return (
     <>
       <Header>
         <Title>{PAGE_TITLE_MAP[activePage]}</Title>
+        <StyledButton onClick={userName ? onUserClick : onLogin} startIcon={userName ? <AccountCircle />: undefined} >{userName || 'Log in'}</StyledButton>
       </Header>
       {children}
 
@@ -74,4 +85,4 @@ const Home = (props) => {
   );
 };
 
-export default Home;
+export default Layout;
